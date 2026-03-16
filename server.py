@@ -3,7 +3,8 @@ import http.server, json, os, urllib.request, urllib.error
 import webbrowser, threading, time
 from pathlib import Path
 
-PORT = int(os.environ.get("PORT", 7432))
+# Railway sets PORT env var - must use it exactly
+PORT = int(os.environ.get("PORT", 8080))
 KEY_FILE = Path(__file__).parent / ".groq_key"
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 MODEL = "llama-3.3-70b-versatile"
@@ -18,7 +19,8 @@ def get_api_key():
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(BASE_DIR), **kwargs)
-    def log_message(self, f, *a): pass
+    def log_message(self, f, *a):
+        print(f"[{self.command}] {self.path}")
     def do_OPTIONS(self):
         self.send_response(200); self._cors(); self.end_headers()
     def do_GET(self):
@@ -80,7 +82,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         for stream in re.findall(r'BT(.*?)ET', content, re.DOTALL):
             for p in re.findall(r'\((.*?)\)\s*Tj', stream) + re.findall(r'\[(.*?)\]\s*TJ', stream):
                 cleaned = re.sub(r'\\[0-9]{3}', ' ', p)
-                cleaned = cleaned.replace('\\n', '\n').replace('\\r', '\n')
+                cleaned = cleaned.replace('\\n','\n').replace('\\r','\n')
                 cleaned = re.sub(r'\\(.)', r'\1', cleaned)
                 text_parts.append(cleaned)
         return re.sub(r'\s+', ' ', ' '.join(text_parts))
@@ -92,13 +94,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         text = re.sub(r'<w:br[^/]*/>', '\n', xml)
         text = re.sub(r'<w:p[ >]', '\n', text)
         text = re.sub(r'<[^>]+>', '', text)
-        for e, r in [('&amp;','&'),('&lt;','<'),('&gt;','>')]:
+        for e,r in [('&amp;','&'),('&lt;','<'),('&gt;','>')]:
             text = text.replace(e, r)
-        return re.sub(r'\n{3,}', '\n\n', re.sub(r'[ \t]+', ' ', text)).strip()
+        return re.sub(r'\n{3,}','\n\n', re.sub(r'[ \t]+',' ', text)).strip()
 
     def _save_key(self):
         if os.environ.get("GROQ_API_KEY"):
-            return self._json({"error": "Key is set via environment variable on Railway."}, 400)
+            return self._json({"ok": True})  # silently succeed on Railway
         body = self._read_json()
         key = body.get("key", "").strip()
         if not key: KEY_FILE.unlink(missing_ok=True)
@@ -123,13 +125,20 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 if __name__ == "__main__":
     os.chdir(BASE_DIR)
     has_key = bool(get_api_key())
-    is_local = not os.environ.get("GROQ_API_KEY")
+    print(f"=== JobHunter Pro ===")
+    print(f"PORT: {PORT}")
+    print(f"KEY:  {'SET' if has_key else 'NOT SET'}")
+    print(f"DIR:  {BASE_DIR}")
+    print(f"FILES: {list(BASE_DIR.iterdir())}")
+    print(f"Binding 0.0.0.0:{PORT} ...")
 
-    print(f"\n  JobHunter Pro")
-    print(f"  Binding: 0.0.0.0:{PORT}")
-    print(f"  Key: {'configured' if has_key else 'NOT SET'}\n")
+    # Only open browser locally
+    if not os.environ.get("GROQ_API_KEY") and not os.environ.get("RAILWAY_STATIC_URL"):
+        threading.Thread(
+            target=lambda: (time.sleep(1), webbrowser.open(f"http://localhost:{PORT}")),
+            daemon=True
+        ).start()
 
-    if is_local:
-        threading.Thread(target=lambda: (time.sleep(1), webbrowser.open(f"http://localhost:{PORT}")), daemon=True).start()
-
-    http.server.HTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
+    server = http.server.HTTPServer(("0.0.0.0", PORT), Handler)
+    print(f"Server ready on 0.0.0.0:{PORT}")
+    server.serve_forever()
