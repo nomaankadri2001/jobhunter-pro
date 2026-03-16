@@ -68,13 +68,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);displa
 .card{background:var(--s1);border:1px solid var(--b);border-radius:11px;padding:14px 16px;margin-bottom:12px;transition:border-color .2s}
 .ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .ct{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--m)}
-.sc{background:var(--s1);border:1px solid var(--b);border-radius:11px;padding:14px 16px;position:relative;overflow:hidden;transition:border-color .2s}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+@media(max-width:640px){.stat-row{grid-template-columns:repeat(2,1fr);gap:8px}}
+.sc{background:var(--s1);border:1px solid var(--b);border-radius:11px;padding:16px 12px;position:relative;overflow:hidden;transition:border-color .2s;text-align:center;display:flex;flex-direction:column;align-items:center}
+.sc-ico{font-size:20px;margin-bottom:8px;line-height:1}
 .sc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
 .sc.cg::after{background:linear-gradient(90deg,var(--g),transparent)}
 .sc.cv::after{background:linear-gradient(90deg,var(--v),transparent)}
 .sc.cp::after{background:linear-gradient(90deg,var(--p),transparent)}
 .sc.cy::after{background:linear-gradient(90deg,var(--y),transparent)}
-.sn{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1;margin-bottom:3px}
+.sn{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1;margin-bottom:4px}
 .sl{font-size:11px;color:var(--m)}
 .cg .sn{color:var(--g)}.cv .sn{color:var(--v)}.cp .sn{color:var(--p)}.cy .sn{color:var(--y)}
 
@@ -257,11 +260,11 @@ textarea{font-size:14px}
     <div class="logo-name">JobHunter Pro</div>
   </div>
   <div class="desktop-tabs">
-    <button class="tab on" onclick="go('tailor',this)">Resume Tailor</button>
-    <button class="tab" onclick="go('email',this)">Outreach</button>
-    <button class="tab" onclick="go('cover',this)">Cover Letter</button>
-    <button class="tab" onclick="go('tracker',this)">Tracker</button>
-    <button class="tab" onclick="go('settings',this)">Settings</button>
+    <button class="tab on" onclick="go('tailor',this)">✦ Resume</button>
+    <button class="tab" onclick="go('email',this)">✉ Outreach</button>
+    <button class="tab" onclick="go('cover',this)">◈ Cover Letter</button>
+    <button class="tab" onclick="go('tracker',this)">⊞ Tracker</button>
+    <button class="tab" onclick="go('settings',this)">⚙ Settings</button>
   </div>
   <div class="topright">
     <div class="dot-wrap"><div class="dot" id="dot"></div><span id="slabel">Ready</span></div>
@@ -421,11 +424,11 @@ textarea{font-size:14px}
 
   <!-- TRACKER -->
   <div class="panel" id="p-tracker">
-    <div class="g4">
-      <div class="sc cg"><div class="sn" id="st-t">0</div><div class="sl">Applied</div></div>
-      <div class="sc cv"><div class="sn" id="st-i">0</div><div class="sl">Interviews</div></div>
-      <div class="sc cy"><div class="sn" id="st-p">0</div><div class="sl">Pending</div></div>
-      <div class="sc cp"><div class="sn" id="st-o">0</div><div class="sl">Offers</div></div>
+    <div class="stat-row">
+      <div class="sc cg"><div class="sc-ico">📋</div><div class="sn" id="st-t">0</div><div class="sl">Applied</div></div>
+      <div class="sc cv"><div class="sc-ico">🗓</div><div class="sn" id="st-i">0</div><div class="sl">Interviews</div></div>
+      <div class="sc cy"><div class="sc-ico">⏳</div><div class="sn" id="st-p">0</div><div class="sl">Pending</div></div>
+      <div class="sc cp"><div class="sc-ico">🎉</div><div class="sn" id="st-o">0</div><div class="sl">Offers</div></div>
     </div>
     <div class="card">
       <div class="ch"><span class="ct">Log Application</span></div>
