@@ -1,1 +1,1 @@
-# No external dependencies - uses Python standard library only
+# No dependencies - pure Python standard library
